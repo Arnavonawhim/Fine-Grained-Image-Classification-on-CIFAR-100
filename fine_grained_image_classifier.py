@@ -8,7 +8,6 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import classification_report, confusion_matrix
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Load data
 (x_train, y_train), (x_test, y_test) = cifar100.load_data(label_mode='fine')
@@ -53,8 +52,8 @@ def build_custom_cnn():
 custom_model = build_custom_cnn()
 custom_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy', tf.keras.metrics.TopKCategoricalAccuracy(k=5)])
 
-# Training custom model
-history = custom_model.fit(
+# Train custom CNN
+custom_model.fit(
     train_gen.flow(x_train, y_train_oh, batch_size=64),
     epochs=25,
     validation_data=val_gen.flow(x_val, y_val_oh)
@@ -97,10 +96,20 @@ y_pred = np.argmax(custom_model.predict(x_test), axis=1)
 print("Custom CNN Classification Report:")
 print(classification_report(y_test, y_pred))
 
-# Confusion matrix
+# Confusion matrix (matplotlib only)
 cm = confusion_matrix(y_test, y_pred)
-plt.figure(figsize=(10,8))
-sns.heatmap(cm[:10, :10], annot=True, fmt='d', cmap='Blues')
+plt.figure(figsize=(10, 8))
+plt.imshow(cm[:10, :10], interpolation='nearest', cmap=plt.cm.Blues)
+plt.title("Confusion Matrix (Subset of Classes)")
+plt.colorbar()
+tick_marks = np.arange(10)
+plt.xticks(tick_marks, tick_marks)
+plt.yticks(tick_marks, tick_marks)
+plt.ylabel("True Label")
+plt.xlabel("Predicted Label")
+plt.tight_layout()
+plt.show()
+
 plt.title("Confusion Matrix (Subset of Classes)")
 plt.xlabel("Predicted")
 plt.ylabel("True")
